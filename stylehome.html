@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasdaq-100 Open Dashboard</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        :root {
+            --primary-dark: #0a0e1a;
+            --secondary-dark: #1a1f2e;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d1;
+            --border-color: #2d3748;
+            --glass-bg: rgba(26, 31, 46, 0.8);
+            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1419 100%);
+            color: var(--text-primary); 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridPulse 4s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
+        
+        /* Header: Modern glassmorphism effect */
+        header { 
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary); 
+            padding: 1.5rem; 
+            text-align: center; 
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            z-index: 100;
+        }
+        
+        header h1 { 
+            font-size: 1.8rem; 
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Market status indicator */
+        .market-status {
+            display: inline-block;
+            margin-left: 1rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent-green);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Main Layout */
+        .main-container { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+            position: relative;
+        }
+        
+        /* Sidebar: Ultra-modern with glow effects */
+        nav.sidebar { 
+            width: 280px; 
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color); 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            overflow-y: auto; 
+            position: relative;
+            box-shadow: inset -1px 0 0 rgba(0, 212, 255, 0.2);
+        }
+        
+        nav.sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 50%, rgba(0, 255, 136, 0.05) 100%);
+            pointer-events: none;
+        }
+        
+        nav.sidebar ul { 
+            list-style: none; 
+            padding: 2rem 0; 
+            position: relative;
+            z-index: 2;
+        }
+        
+        nav.sidebar li { 
+            margin: 0.5rem 1rem; 
+        }
+        
+        nav.sidebar a { 
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem; 
+            color: var(--text-secondary); 
+            text-decoration: none; 
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav.sidebar a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        nav.sidebar a:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+        
+        nav.sidebar a:hover::before {
+            left: 100%;
+        }
+        
+        nav.sidebar a.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.1));
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        nav.sidebar.collapsed { 
+            transform: translateX(-100%); 
+        }
+        
+        /* Navigation icons */
+        nav.sidebar a::after {
+            content: '→';
+            margin-left: auto;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        nav.sidebar a:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Toggle Button: Futuristic design */
+        .toggle-btn { 
+            display: none; 
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            color: white; 
+            border: none; 
+            padding: 1rem; 
+            cursor: pointer; 
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .toggle-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        @media (max-width: 768px) { 
+            .toggle-btn { 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed; 
+                top: 2rem; 
+                left: 1.5rem; 
+                z-index: 1000; 
+            }
+            nav.sidebar { 
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                height: 100vh; 
+                z-index: 999; 
+                transform: translateX(-100%); 
+            }
+            nav.sidebar.open { 
+                transform: translateX(0); 
+            }
+            .main-container { 
+                margin-left: 0; 
+            }
+        }
+        
+        /* Main Content: Premium card design */
+        main { 
+            flex: 1; 
+            padding: 2.5rem; 
+            overflow-y: auto; 
+            background: transparent;
+            position: relative;
+        }
+        
+        main:empty::before { 
+            content: 'Ready for Market Open Analysis\A\ASelect a tool from the sidebar to begin your daily trading process'; 
+            white-space: pre;
+            color: var(--text-secondary); 
+            text-align: center; 
+            display: block; 
+            padding: 4rem 2rem; 
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        /* Footer: Sleek process reminder */
+        footer { 
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary); 
+            text-align: center; 
+            padding: 1.5rem; 
+            font-size: 0.9rem;
+            position: relative;
+        }
+        
+        footer p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .process-step {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .process-step:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+        
+        /* Loading animation for dynamic content */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Journal Grid Styles (Added for Consistency) */
+        .journal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+        
+        .journal-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .journal-box:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.2);
+        }
+        
+        .journal-box-header {
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .journal-box-text {
+            min-height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            resize: vertical;
+            width: 100%;
+            font-family: inherit;
+            background: rgba(26, 31, 46, 0.5);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+        
+        .journal-box-text:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+        
+        .journal-box-chart {
+            height: 280px;
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            background: var(--secondary-dark);
+            overflow: hidden;
+        }
+        
+        .journal-box-chart.loading::after {
+            content: 'Loading ^NDX chart...';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .journal-box-chart.error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 71, 87, 0.1);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .journal-grid {
+                grid-template-columns: 1fr;
+            }
+            .journal-box-chart {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Nasdaq-100 Open Dashboard</h1>
+        <span class="market-status" id="marketStatus">MARKET OPEN</span>
+    </header>
+    
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="#" class="nav-link active" data-page="home">Dashboard Overview</a></li>
+                <li><a href="#" class="nav-link" data-page="journal">Trading Journal</a></li>
+                <li><a href="#" class="nav-link" data-page="sizer">Position Sizer</a></li>
+                <li><a href="#" class="nav-link" data-page="macro">Macro Analysis</a></li>
+                <li><a href="#" class="nav-link" data-page="watchlist">NDX Watchlist</a></li>
+                <li><a href="#" class="nav-link" data-page="performance">Performance</a></li>
+            </ul>
+        </nav>
+        
+        <main id="main-content" class="fade-in">
+            <!-- Dynamic content will load here -->
+        </main>
+    </div>
+    
+    <footer>
+        <p>
+            <span class="process-step">Check ^NDX Macro</span>
+            <span class="process-step">Size 1% Risk</span>
+            <span class="process-step">Trade the Open</span>
+            <span class="process-step">Journal Results</span>
+        </p>
+    </footer>
+
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script>
+        // Journal System Variables
+        const SYMBOL = '%5ENDX';
+        const INTERVAL = '2m';
+        const TIMEZONE = 'America/Los_Angeles';
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        let journalEntries = JSON.parse(localStorage.getItem('nasdaqJournal') || '[]');
+
+        // Market status logic
+        function updateMarketStatus() {
+            const now = new Date();
+            const marketOpen = new Date();
+            marketOpen.setHours(9, 30, 0); // 9:30 AM ET
+            const marketClose = new Date();
+            marketClose.setHours(16, 0, 0); // 4:00 PM ET
+            
+            const statusEl = document.getElementById('marketStatus');
+            const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+            const isMarketHours = now >= marketOpen && now <= marketClose;
+            
+            if (isWeekday && isMarketHours) {
+                statusEl.textContent = 'MARKET OPEN';
+                statusEl.style.background = 'var(--accent-green)';
+            } else {
+                statusEl.textContent = 'MARKET CLOSED';
+                statusEl.style.background = 'var(--accent-red)';
+            }
+        }
+
+        // Journal Functions
+        function getTodayPDT() {
+            return new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE });
+        }
+
+        function saveJournalEntries() {
+            localStorage.setItem('nasdaqJournal', JSON.stringify(journalEntries));
+        }
+
+        async function fetchNasdaqData(targetDate) {
+            const now = Math.floor(Date.now() / 1000);
+            const start = Math.floor(new Date(`${targetDate}T00:00:00-07:00`).getTime() / 1000);
+            const end = targetDate === getTodayPDT() ? now : Math.floor(new Date(`${targetDate}T23:59:59-07:00`).getTime() / 1000);
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${SYMBOL}?interval=${INTERVAL}&period1=${start}&period2=${end}`;
+            const proxyUrl = CORS_PROXY + encodeURIComponent(yahooUrl);
+            
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status} via proxy`);
+                const json = await response.json();
+                
+                const result = json.chart?.result?.[0];
+                if (!result) throw new Error('No chart data—check date/symbol');
+
+                const timestamps = result.timestamp || [];
+                const quote = result.indicators?.quote?.[0] || {};
+                if (timestamps.length === 0) throw new Error('No timestamps—empty day?');
+
+                const data = timestamps.map((time, i) => ({
+                    time,
+                    open: quote.open?.[i] || 0,
+                    high: quote.high?.[i] || 0,
+                    low: quote.low?.[i] || 0,
+                    close: quote.close?.[i] || 0
+                })).filter(bar => bar.close > 0 && bar.time > 0);
+
+                return data;
+            } catch (error) {
+                console.error('Yahoo Fetch Error:', error);
+                throw error;
+            }
+        }
+
+        
+        // Render TradingView chart in box
+        function renderChart(chartDiv, data) {
+            chartDiv.classList.remove('loading', 'error');
+            chartDiv.innerHTML = '';
+            const chart = LightweightCharts.createChart(chartDiv, {
+                width: chartDiv.offsetWidth,
+                height: chartDiv.offsetHeight,
+                layout: { background: { type: 'solid', color: '#222' }, textColor: '#DDD' },
+                grid: { vertLines: { color: '#444' }, horzLines: { color: '#444' } },
+                timeScale: { borderColor: '#ccc' },
+                rightPriceScale: { borderColor: '#ccc' }
+            });
+
+            const candlestickSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+                upColor: '#26a69a',
+                downColor: '#ef5350',
+                borderVisible: false,
+                wickUpColor: '#26a69a',
+                wickDownColor: '#ef5350'
+            });
+            chart.applyOptions({
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+            });
+
+            candlestickSeries.setData(data);
+            chart.timeScale().fitContent();
+        }
+
+        function showChartError(chartDiv, message) {
+            chartDiv.classList.remove('loading');
+            chartDiv.classList.add('error');
+            chartDiv.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; color: var(--accent-red);">
+                    <strong>^NDX Chart Error:</strong>
+                    <div style="margin: 0.5rem 0; color: var(--text-secondary);">${message}</div>
+                    <small style="color: var(--text-secondary);">Check console (F12) for details</small>
+                </div>
+            `;
+        }
+
+        // Navigation functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Active navigation state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                e.target.classList.add('active');
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+                
+                // Load page content
+                const page = e.target.dataset.page;
+                loadPageContent(page);
+            });
+        });
+        
+        // Content loading with journal integration
+        function loadPageContent(page) {
+            const mainContent = document.getElementById('main-content');
+            mainContent.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                switch(page) {
+                    case 'home':
+                        loadHomeDashboard(mainContent);
+                        break;
+                    case 'journal':
+                        loadJournalPage(mainContent);
+                        break;
+                    case 'sizer':
+                        loadPositionSizer(mainContent);
+                        break;
+                    case 'macro':
+                        loadMacroAnalysis(mainContent);
+                        break;
+                    case 'watchlist':
+                        loadWatchlist(mainContent);
+                        break;
+                    case 'performance':
+                        loadPerformance(mainContent);
+                        break;
+                    default:
+                        loadPlaceholder(mainContent, page);
+                }
+                mainContent.classList.add('fade-in');
+            }, 150);
+        }
+
+        function loadHomeDashboard(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">Dashboard Overview</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="padding: 1.5rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px;">
+                            <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Today's Focus</h3>
+                            <p style="color: var(--text-secondary);">Nasdaq-100 Market Open Strategy</p>
+                        </div>
+                        <div style="padding: 1.5rem; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px;">
+                            <h3 style="color: var(--accent-green); margin-bottom: 0.5rem;">Risk Management</h3>
+                            <p style="color: var(--text-secondary);">1% Account Risk Per Trade</p>
+                        </div>
+                        <div style="padding: 1.5rem; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 12px;">
+                            <h3 style="color: var(--accent-red); margin-bottom: 0.5rem;">Process</h3>
+                            <p style="color: var(--text-secondary);">Analyze → Size → Execute → Journal</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadJournalPage(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--accent-blue); margin: 0;">Daily Nasdaq-100 Journal</h2>
+                        <button id="add-today-btn" style="
+                            padding: 0.75rem 1.5rem; 
+                            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green)); 
+                            color: white; 
+                            border: none; 
+                            border-radius: 25px; 
+                            cursor: pointer; 
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+                        ">Add Today's Entry (PDT)</button>
+                    </div>
+                    <div id="journal-grid" class="journal-grid"></div>
+                </div>
+            `;
+            
+            // Initialize journal functionality
+            initializeJournal();
+        }
+
+        function initializeJournal() {
+            renderJournalEntries();
+            
+            // Add today button handler
+            document.getElementById('add-today-btn').addEventListener('click', addTodayJournalBox);
+        }
+
+        function createJournalBox(entry, index) {
+            const journalGrid = document.getElementById('journal-grid');
+            const box = document.createElement('div');
+            box.className = 'journal-box fade-in';
+            const chartId = `chart-${entry.date}-${index}`;
+            
+            box.innerHTML = `
+                <div class="journal-box-header">
+                    📈 Nasdaq-100 (^NDX): ${entry.date} PDT
+                </div>
+                <div class="journal-box-text" contenteditable="true">${entry.text || 'Notes: Macro forces, top tech components, open trade setup...'}</div>
+                <div id="${chartId}" class="journal-box-chart loading"></div>
+            `;
+            
+            journalGrid.appendChild(box);
+
+            // Save notes on blur
+            const textEl = box.querySelector('.journal-box-text');
+            textEl.addEventListener('blur', () => {
+                journalEntries[index].text = textEl.innerText;
+                saveJournalEntries();
+            });
+
+            // Load chart
+            const chartDiv = document.getElementById(chartId);
+            if (entry.chartData && entry.chartData.length > 0) {
+                renderChart(chartDiv, entry.chartData);
+            } else {
+                fetchNasdaqData(entry.date).then(data => {
+                    journalEntries[index].chartData = data;
+                    saveJournalEntries();
+                    renderChart(chartDiv, data);
+                }).catch(error => {
+                    showChartError(chartDiv, error.message);
+                });
+            }
+        }
+
+        // Updated: Sort newest first by date (chronological today at top)
+        function renderJournalEntries() {
+            const journalGrid = document.getElementById('journal-grid');
+            if (journalGrid) {
+                journalGrid.innerHTML = '';
+                const sortedEntries = [...journalEntries].sort((a, b) => new Date(b.date) - new Date(a.date));  // Descending: Newest top
+                sortedEntries.forEach((entry, index) => createJournalBox(entry, index));
+            }
+        }
+
+        async function addTodayJournalBox() {
+            const today = getTodayPDT();
+            let todayIndex = journalEntries.findIndex(e => e.date === today);
+            
+            if (todayIndex === -1) {
+                journalEntries.push({ date: today, text: '', chartData: [] });
+                saveJournalEntries();
+            }
+            
+            try {
+                const data = await fetchNasdaqData(today);
+                todayIndex = journalEntries.findIndex(e => e.date === today);  // Re-find for update
+                journalEntries[todayIndex].chartData = data;
+                saveJournalEntries();
+                renderJournalEntries();  // Re-render with newest-first sort
+            } catch (error) {
+                console.error('Add Today Error:', error);
+                renderJournalEntries();  // Grid for notes anyway
+            }
+        }
+
+        function loadPositionSizer(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">Position Sizer</h2>
+                    <p style="color: var(--text-secondary);">1% account risk calculator will be integrated here.</p>
+                </div>
+            `;
+        }
+
+        function loadMacroAnalysis(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">Macro Analysis</h2>
+                    <p style="color: var(--text-secondary);">Macro forces and tech sector analysis tools will appear here.</p>
+                </div>
+            `;
+        }
+
+        function loadWatchlist(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">NDX Watchlist</h2>
+                    <p style="color: var(--text-secondary);">Top Nasdaq-100 components and key levels will be displayed here.</p>
+                </div>
+            `;
+        }
+
+        function loadPerformance(container) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">Performance</h2>
+                    <p style="color: var(--text-secondary);">Trading performance metrics and analytics will be shown here.</p>
+                </div>
+            `;
+        }
+
+        function loadPlaceholder(container, page) {
+            container.innerHTML = `
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <h2 style="margin-bottom: 1rem; color: var(--accent-blue);">${page.charAt(0).toUpperCase() + page.slice(1)}</h2>
+                    <p style="color: var(--text-secondary);">This section is ready for your ${page} tools.</p>
+                </div>
+            `;
+        }
+        
+        // Initialize
+        updateMarketStatus();
+        setInterval(updateMarketStatus, 60000); // Update every minute
+        loadPageContent('home'); // Load default content
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        document.querySelector('[data-page="home"]').click();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        document.querySelector('[data-page="journal"]').click();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        document.querySelector('[data-page="sizer"]').click();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

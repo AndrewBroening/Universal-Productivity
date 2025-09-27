@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasdaq-100 Open Dashboard</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="/Trading Journal/chart.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Header: Fixed top, simple title */
+        header { 
+            background: #364453; color: white; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        header h1 { font-size: 1.5rem; }
+        
+        /* Main Layout: Flex for sidebar + content */
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar: Collapsible nav, fixed width */
+        nav.sidebar { 
+            width: 250px; background: #28254b; border-right: 1px solid #ddd; transition: transform 0.3s; 
+            overflow-y: auto; 
+        }
+        nav.sidebar ul { list-style: none; padding: 1rem 0; }
+        nav.sidebar li { margin: 0; }
+        nav.sidebar a { 
+            display: block; padding: 1rem 1rem; color: #f3f0f0; text-decoration: none; border-bottom: 1px solid #eee; 
+        }
+        nav.sidebar a:hover { background: #f8f9fa; }
+        nav.sidebar.collapsed { transform: translateX(-100%); }
+        
+        /* Toggle Button for Mobile */
+        .toggle-btn { 
+            display: none; background: #007bff; color: white; border: none; padding: 0.5rem; cursor: pointer; 
+        }
+        @media (max-width: 768px) { 
+            .toggle-btn { display: block; position: fixed; top: 1rem; left: 1rem; z-index: 1000; }
+            nav.sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 999; transform: translateX(-100%); }
+            nav.sidebar.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+        
+        /* Main Content: Flexible area for pages (e.g., journal grid) */
+        main { 
+            flex: 1; padding: 2rem; overflow-y: auto; background: #f9f9f9; 
+        }
+        main:empty::before { content: 'Select a page from sidebar or add content here (e.g., journal grid).'; color: #999; text-align: center; display: block; padding: 2rem; }
+        
+        /* Footer: Fixed bottom, process reminder */
+        footer { 
+            background: #333; color: white; text-align: center; padding: 1rem; font-size: 0.9rem; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Nasdaq-100 Open Dashboard</h1>
+    </header>
+    
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="journal.html">Journal</a></li>
+                <li><a href="outlook.html">Outlook</a></li>
+                <li><a href="sources.html">Sources</a></li>
+                <!-- Add future pages here: <li><a href="new-page.html">New Page</a></li> -->
+            </ul>
+        </nav>
+        
+        <main id="main-content">
+            <button id="add-btn">Add/Refresh Today's Entry (PDT)</button>
+            <div id="grid" class="grid"></div>
+            <script src="/Trading Journal/chart.js"></script>
+        </main>
+    </div>
+    
+    <footer>
+        <p>Daily Process: Glance ^NDX for macro/tech forces, size 1% account, trade the open. Reliable Nasdaq-100 focus.</p>
+    </footer>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Optional: Close sidebar on link click (mobile)
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) toggleSidebar();
+            });
+        });
+    </script>
+</body>
+</html>

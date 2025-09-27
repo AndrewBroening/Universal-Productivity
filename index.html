@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trading Dashboard</title>
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      .week-marker {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #e91e63;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .week-marker-label {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, 0.3em);
+        background: #fff;
+        color: #e91e63;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 0.1em 0.5em;
+        border-radius: 6px;
+        white-space: nowrap;
+        box-shadow: 0 1px 4px #e91e6322;
+        z-index: 3;
+        pointer-events: none;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f6fa;
+      }
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      header {
+        background: #222c36;
+        color: #fff;
+        padding: 1rem 2rem;
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+      }
+      .main-content {
+        display: flex;
+        flex: 1;
+      }
+      nav.sidebar {
+        width: 220px;
+        background: #1a2027;
+        color: #fff;
+        padding: 2rem 1rem;
+        min-height: 100%;
+      }
+      nav.sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+      nav.sidebar li {
+        margin-bottom: 1.5rem;
+      }
+      nav.sidebar a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .content-area {
+        flex: 1;
+        padding: 2rem;
+      }
+      .week-table-container {
+        margin: 2rem auto;
+        max-width: 900px;
+        position: relative;
+      }
+      .week-table {
+        position: relative;
+        width: 100%;
+        height: 80px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .week-row {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+      .week-day {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        height: 100%;
+        border-right: 1px solid #e0e0e0;
+        position: relative;
+      }
+      .week-day:last-child {
+        border-right: none;
+      }
+      .week-indicator {
+        position: absolute;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: #222c36;
+        border-radius: 2px;
+        box-shadow: 0 0 8px #222c36aa;
+        transition: left 0.2s cubic-bezier(.4,2,.6,1);
+        z-index: 2;
+      }
+      .week-time-label {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 1.1rem;
+        color: #222c36;
+        font-weight: 500;
+        letter-spacing: 1px;
+      }
+      .rule-book-container {
+        margin: 2rem 0 0 0;
+        display: flex;
+        justify-content: flex-start;
+      }
+      .rule-book-box {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 1.5rem 2rem;
+        min-width: 280px;
+        max-width: 350px;
+        border-left: 6px solid #222c36;
+      }
+      .rule-book-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #222c36;
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+      }
+      .rule-book-list {
+        margin: 0;
+        padding-left: 1.2em;
+        color: #444;
+      }
+      footer {
+        background: #222c36;
+        color: #fff;
+        text-align: center;
+        padding: 1rem 0;
+      }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>Trading Dashboard</header>
+        <div class="main-content">
+            <nav class="sidebar">
+                <ul>
+                    <li><a href="#">Overview</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">Markets</a></li>
+                    <li><a href="#">Analytics</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+            <div class="content-area">
+                <h2>Weekly Time Table</h2>
+                <div class="week-table-container">
+                    <div class="week-table" id="weekTable">
+            <div class="week-row">
+              <div class="week-day" style="background:#f443368e;">Sunday</div>
+              <div class="week-day" style="background:#ff98008e;">Monday</div>
+              <div class="week-day" style="background:#ffeb3b8e; color:#222;">Tuesday</div>
+              <div class="week-day" style="background:#4caf508e;">Wednesday</div>
+              <div class="week-day" style="background:#2196f38e;">Thursday</div>
+              <div class="week-day" style="background:#9c27b08e;">Friday</div>
+              <div class="week-day" style="background:#607d8b8e;">Saturday</div>
+            </div>
+            <div class="week-indicator" id="weekIndicator"></div>
+            <!-- Marker lines will be injected by JS -->
+            <div id="weekMarkers"></div>
+                    </div>
+                    <div class="week-time-label" id="weekTimeLabel"></div>
+                </div>
+            <div class="rule-book-container">
+              <div class="rule-book-box">
+                <div class="rule-book-title">Rule Book</div>
+                <ul class="rule-book-list">
+                  <li>Increasing, decreasing, or ranging</li>
+                  <li>Trade Nasdaq in mornings</li>
+                  <li>Market open trading</li>
+                  <li>learn about nasdaq and big tech</li>
+                  <li>Learn experience</li>
+                  <li>Learn Risk management</li>
+                  <li>How does nasdaq move</li>
+                  <li>KLR650 Trading</li>
+                </ul>
+              </div>
+            </div>
+            </div>
+        </div>
+        <footer>&copy; 2025 Trading Dashboard. All rights reserved.</footer>
+    </div>
+    <script>
+      // Marker definitions: [day, hour, minute, label, color]
+      const markerDefs = [
+        // Market open: Sunday 14:00
+        { day: 0, hour: 14, minute: 0, label: 'Market Open', color: '#388e3c' },
+        // Market close: Friday 14:00
+        { day: 5, hour: 14, minute: 0, label: 'Market Close', color: '#d32f2f' },
+        // NY session open: Mon-Fri 6:30
+        { day: 1, hour: 6, minute: 30, label: 'NY Session Open', color: '#1976d2' },
+        { day: 2, hour: 6, minute: 30, label: 'NY Session Open', color: '#1976d2' },
+        { day: 3, hour: 6, minute: 30, label: 'NY Session Open', color: '#1976d2' },
+        { day: 4, hour: 6, minute: 30, label: 'NY Session Open', color: '#1976d2' },
+        { day: 5, hour: 6, minute: 30, label: 'NY Session Open', color: '#1976d2' },
+      ];
+
+      function getMarkerPercent(day, hour, minute) {
+        const secondsInDay = 24 * 60 * 60;
+        const secondsInWeek = 7 * secondsInDay;
+        const seconds = day * secondsInDay + hour * 3600 + minute * 60;
+        return seconds / secondsInWeek;
+      }
+
+      function renderWeekMarkers() {
+        const weekTable = document.getElementById('weekTable');
+        const markersDiv = document.getElementById('weekMarkers');
+        const tableWidth = weekTable.offsetWidth;
+        markersDiv.innerHTML = '';
+        markerDefs.forEach(m => {
+          const percent = getMarkerPercent(m.day, m.hour, m.minute);
+          const left = percent * tableWidth;
+          const marker = document.createElement('div');
+          marker.className = 'week-marker';
+          marker.style.left = left + 'px';
+          marker.style.background = m.color;
+          marker.style.width = '2px';
+          marker.style.zIndex = 1;
+          // Label
+          const label = document.createElement('div');
+          label.className = 'week-marker-label';
+          label.textContent = m.label;
+          label.style.color = m.color;
+          marker.appendChild(label);
+          markersDiv.appendChild(marker);
+        });
+      }
+
+      function updateWeekIndicator() {
+        const now = new Date();
+        // Sunday = 0, Monday = 1, ..., Saturday = 6
+        const day = now.getDay();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const second = now.getSeconds();
+        const ms = now.getMilliseconds();
+        // Total seconds since week start
+        const secondsInDay = 24 * 60 * 60;
+        const secondsInWeek = 7 * secondsInDay;
+        const secondsToday = hour * 3600 + minute * 60 + second + ms / 1000;
+        const secondsSinceWeekStart = day * secondsInDay + secondsToday;
+        // Calculate position as a percentage
+        const percent = secondsSinceWeekStart / secondsInWeek;
+        const weekTable = document.getElementById('weekTable');
+        const indicator = document.getElementById('weekIndicator');
+        const tableWidth = weekTable.offsetWidth;
+        const indicatorWidth = indicator.offsetWidth || 4;
+        // Position the indicator
+        const left = percent * (tableWidth - indicatorWidth);
+        indicator.style.left = left + 'px';
+        // Time label
+        const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const timeLabel = document.getElementById('weekTimeLabel');
+        const pad = n => n.toString().padStart(2,'0');
+        timeLabel.textContent = `Now: ${days[day]}, ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+      }
+      // Initial call and interval
+      window.addEventListener('DOMContentLoaded', () => {
+        renderWeekMarkers();
+        updateWeekIndicator();
+        setInterval(updateWeekIndicator, 1000);
+        window.addEventListener('resize', renderWeekMarkers);
+      });
+    </script>
+</body>
+</html>
