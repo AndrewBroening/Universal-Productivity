@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal Productivity</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="/Trading Journal/chart.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
@@ -51,11 +53,6 @@
         footer { 
             background: #333; color: white; text-align: center; padding: 1rem; font-size: 0.9rem; 
         }
-
-        /* text margin */
-        ul {
-            margin: 20px
-        }
     </style>
 </head>
 <body>
@@ -68,44 +65,19 @@
     <div class="main-container">
         <nav class="sidebar" id="sidebar">
             <ul>
-                <li><a href="home.html">Home</a></li>
-                <li><a href="learn.html">Learn</a></li>
-                <li><a href="trading.html">Trading</a></li>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="journal.html">Journal</a></li>
+                <li><a href="outlook.html">Outlook</a></li>
                 <li><a href="sources.html">Sources</a></li>
                 <!-- Add future pages here: <li><a href="new-page.html">New Page</a></li> -->
             </ul>
         </nav>
         
         <main id="main-content">
-            <section>
-                <h2>Websites</h2>
-                <p>Stay updated with the latest macroeconomic and tech news impacting the Nasdaq-100.</p>
-                <ul>
-                    <li><a href="https://www.benzinga.com/" target="_blank">Benzinga</a></li>
-                    <li><a href="https://www.investing.com/" target="_blank">Investing.com</a></li>
-                    <li><a href="https://seekingalpha.com/" target="_blank">Seeking Alpha</a></li>
-                </ul>
-            </section>
-            
-            <section>
-                <h2>Streams</h2>
-                <p>Daily streams for news and trading</p>
-                <ul>
-                    <li><a href="https://www.youtube.com/@Benzinga" target="_blank">Benzinga Live</a></li>
-                    <li><a href="https://www.youtube.com/@TraderTVLive" target="_blank">TraderTV Live</a></li>
-                    <li><a href="https://www.youtube.com/@NinjaTrader" target="_blank">Ninja Trader Live</a></li>
-                </ul>
-            </section>
-            <section>
-                <h2>LLM prompts</h2>
-                <ul>
-                    <li>Please provide a detailed analysis of the performance trends for major U.S. indices (such as the S&P 500, Dow Jones, and Nasdaq) over the last quarter. In your response, include:• A review of overall index performance trends, highlighting periods of growth or decline  • An evaluation of trading volumes and how they compare to historical averages  • An analysis of investor sentiment indicators and any shifts observed over time  • A discussion of key market dynamics, including macroeconomic events, earnings announcements, or policy updates that may have influenced these trends  • A clear chart that visualizes both index performance and trading volume trends for enhanced clarityUse supporting data, charts, and relevant metrics where possible to substantiate your analysis.</li>
-                </ul>
-            </section>
-           
-
-            
-
+            <h1>Trading Journal</h1>
+            <button id="add-btn">Add/Refresh Today's Entry (PDT)</button>
+            <div id="grid" class="grid"></div>
+            <script src="/Trading Journal/chart.js"></script>
         </main>
     </div>
     

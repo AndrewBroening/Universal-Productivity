@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nasdaq-100 Open Dashboard</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-    <link rel="stylesheet" href="/Trading Journal/chart.css">
+    <title>Universal Productivity</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
@@ -53,11 +51,17 @@
         footer { 
             background: #333; color: white; text-align: center; padding: 1rem; font-size: 0.9rem; 
         }
+
+        /* text margin */
+        ul {
+            margin: 20px
+        }
     </style>
+    <link rel="stylesheet" href="./analog clock/analog.css">
 </head>
 <body>
     <header>
-        <h1>Nasdaq-100 Open Dashboard</h1>
+        <h1>Universal Productivity</h1>
     </header>
     
     <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -65,23 +69,54 @@
     <div class="main-container">
         <nav class="sidebar" id="sidebar">
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="journal.html">Journal</a></li>
-                <li><a href="outlook.html">Outlook</a></li>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="learn.html">Learn</a></li>
+                <li><a href="trading.html">Trading</a></li>
                 <li><a href="sources.html">Sources</a></li>
                 <!-- Add future pages here: <li><a href="new-page.html">New Page</a></li> -->
             </ul>
         </nav>
         
-        <main id="main-content">
-            <button id="add-btn">Add/Refresh Today's Entry (PDT)</button>
-            <div id="grid" class="grid"></div>
-            <script src="/Trading Journal/chart.js"></script>
+        <main>
+            <h1>Productivity Clock</h1>
+            <p>"potentially redesign" "top bar horizontal daily bar"</p>
+          <div class="clock">
+
+            <div>
+              <div class="info date"></div>
+              <div class="info day"></div>
+            </div>
+
+            <div class="dot"></div>
+
+            <div>
+              <div class="hour-hand"></div>
+              <div class="minute-hand"></div>
+              <div class="second-hand"></div>
+            </div>
+
+            <div>
+              <span class="h3">3</span>
+              <span class="h6">6</span>
+              <span class="h9">9</span>
+              <span class="h12">12</span>
+            </div>
+
+            <div class="diallines"></div>
+
+          </div>
+
+          <div class="dosha-info">
+            <h3 id="currentDosha">Current Dosha: -</h3>
+            <p id="doshaDescription"></p>
+          </div>
+
+          <script src="./analog clock/analog.js"></script>
         </main>
     </div>
     
     <footer>
-        <p>Daily Process: Glance ^NDX for macro/tech forces, size 1% account, trade the open. Reliable Nasdaq-100 focus.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
     </footer>
 
     <script>
